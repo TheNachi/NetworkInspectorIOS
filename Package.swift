@@ -7,7 +7,7 @@ let package = Package(
     name: "NetworkInspector",
 
     platforms: [
-        .iOS(.v16)
+        .iOS(.v15)
     ],
 
     products: [
@@ -16,6 +16,18 @@ let package = Package(
             targets: [
                 "NetworkInspector"
             ]
+        ),
+        .library(
+            name: "NetInspectorCore",
+            targets: ["NetInspectorCore"]
+        ),
+        .library(
+            name: "NetInspectorUI",
+            targets: ["NetInspectorUI"]
+        ),
+        .library(
+            name: "NetInspectorPlugins",
+            targets: ["NetInspectorPlugins"]
         )
     ],
 
@@ -69,6 +81,20 @@ let package = Package(
             name: "NetInspectorUITests",
             dependencies: [
                 "NetInspectorUI"
+            ]
+        ),
+
+        .testTarget(
+            name: "NetInspectorPluginsTests",
+            dependencies: [
+                "NetInspectorPlugins"
+            ]
+        ),
+
+        .testTarget(
+            name: "NetworkInspectorTests",
+            dependencies: [
+                "NetworkInspector"
             ]
         )
     ]
