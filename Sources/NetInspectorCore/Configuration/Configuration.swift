@@ -1,7 +1,7 @@
 import Foundation
 
 public struct JSONRedactionRule: Sendable, Hashable {
-    public enum Kind: Hashable {
+    public enum Kind: Hashable, Sendable {
         case exact(String)
         case regex(String)
     }
@@ -13,7 +13,7 @@ public struct JSONRedactionRule: Sendable, Hashable {
 }
 
 public struct SamplingPolicy: Sendable, Hashable {
-    public enum Kind: Hashable {
+    public enum Kind: Hashable, Sendable {
         case all
         case errorsOnly
         case percentage(Double) // 0.0 ... 1.0
@@ -59,11 +59,18 @@ public struct Configuration: Sendable, Hashable {
         self.sampling = sampling
     }
 
-    public static var `default`: Configuration { .init() }
+    public static var `default`: Configuration {
+        #if DEBUG
+        return .init(enabledByDefault: true)
+        #else
+        return .init(enabledByDefault: false)
+        #endif
+    }
 }
 
 public actor ConfigurationStore {
     private var configuration: Configuration
+    private var isPaused: Bool = false
 
     public init(configuration: Configuration = .default) {
         self.configuration = configuration
@@ -73,5 +80,23 @@ public actor ConfigurationStore {
 
     public func update(_ configuration: Configuration) {
         self.configuration = configuration
+    }
+
+    public func isCaptureEnabled() -> Bool {
+        configuration.enabledByDefault && !isPaused
+    }
+
+    public func pause() {
+        isPaused = true
+    }
+
+    public func resume() {
+        isPaused = false
+    }
+
+    public func withLoggingDisabled<T>(operation: @Sendable () async throws -> T) async rethrows -> T {
+        isPaused = true
+        defer { isPaused = false }
+        return try await operation()
     }
 }

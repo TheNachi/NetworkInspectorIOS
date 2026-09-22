@@ -16,8 +16,8 @@ public actor CaptureCoordinator {
     }
 
     public func process(_ event: CaptureEvent) async {
+        guard await configurationStore.isCaptureEnabled() else { return }
         let config = await configurationStore.current()
-        guard config.enabledByDefault else { return }
         guard sampler.shouldSample(event: event, config: config) else { return }
 
         let reqNorm = normalizer.normalizeRequest(event.request)

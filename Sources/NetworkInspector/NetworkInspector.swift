@@ -1,5 +1,6 @@
 import Foundation
 import NetInspectorCore
+import NetInspectorURLSession
 
 public enum NetworkInspector {
 
@@ -32,6 +33,28 @@ public enum NetworkInspector {
         return await rt.logStore.allEntries()
     }
 
+    public static func enable() {
+        Task.detached {
+            guard let rt = await RuntimeRegistry.shared.runtimeInstance() else { return }
+            var cfg = await rt.configurationStore.current()
+            cfg.enabledByDefault = true
+            await rt.configurationStore.update(cfg)
+        }
+    }
+
+    public static func disable() {
+        Task.detached {
+            guard let rt = await RuntimeRegistry.shared.runtimeInstance() else { return }
+            var cfg = await rt.configurationStore.current()
+            cfg.enabledByDefault = false
+            await rt.configurationStore.update(cfg)
+        }
+    }
+
+    public static func makeInstrumentedSession(configuration: URLSessionConfiguration) -> URLSession {
+        NetInspectorURLSession.makeInstrumentedSession(configuration: configuration)
+    }
+
     public static func log(
         request: RequestLike,
         response: ResponseLike? = nil,
@@ -57,6 +80,28 @@ public enum NetworkInspector {
             )
 
             await rt.captureCoordinator.process(event)
+        }
+    }
+
+    public static func pause() {
+        Task.detached {
+            guard let rt = await RuntimeRegistry.shared.runtimeInstance() else { return }
+            await rt.configurationStore.pause()
+        }
+    }
+
+    public static func resume() {
+        Task.detached {
+            guard let rt = await RuntimeRegistry.shared.runtimeInstance() else { return }
+            await rt.configurationStore.resume()
+        }
+    }
+
+    public static func withLoggingDisabled<T>(_ operation: @escaping @Sendable () async throws -> T) async rethrows -> T {
+        if let rt = await RuntimeRegistry.shared.runtimeInstance() {
+            return try await rt.configurationStore.withLoggingDisabled(operation: operation)
+        } else {
+            return try await operation()
         }
     }
 }

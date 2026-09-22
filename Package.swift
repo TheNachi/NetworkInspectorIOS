@@ -7,7 +7,7 @@ let package = Package(
     name: "NetworkInspector",
 
     platforms: [
-        .iOS(.v15)
+        .iOS(.v16)
     ],
 
     products: [
@@ -28,6 +28,18 @@ let package = Package(
         .library(
             name: "NetInspectorPlugins",
             targets: ["NetInspectorPlugins"]
+        ),
+        .library(
+            name: "NetInspectorURLSession",
+            targets: ["NetInspectorURLSession"]
+        ),
+        .library(
+            name: "NetInspectorDiagnostics",
+            targets: ["NetInspectorDiagnostics"]
+        ),
+        .library(
+            name: "NetInspectorExporters",
+            targets: ["NetInspectorExporters"]
         )
     ],
 
@@ -37,6 +49,27 @@ let package = Package(
 
         .target(
             name: "NetInspectorCore"
+        ),
+
+        // MARK: - URLSession
+
+        .target(
+            name: "NetInspectorURLSession",
+            dependencies: ["NetInspectorCore"]
+        ),
+
+        // MARK: - Diagnostics
+
+        .target(
+            name: "NetInspectorDiagnostics",
+            dependencies: ["NetInspectorCore"]
+        ),
+
+        // MARK: - Exporters
+
+        .target(
+            name: "NetInspectorExporters",
+            dependencies: ["NetInspectorCore"]
         ),
 
         // MARK: - UI
@@ -64,7 +97,10 @@ let package = Package(
             dependencies: [
                 "NetInspectorCore",
                 "NetInspectorUI",
-                "NetInspectorPlugins"
+                "NetInspectorPlugins",
+                "NetInspectorURLSession",
+                "NetInspectorDiagnostics",
+                "NetInspectorExporters"
             ]
         ),
 
