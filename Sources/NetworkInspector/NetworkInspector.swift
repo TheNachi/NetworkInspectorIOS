@@ -7,9 +7,12 @@ public enum NetworkInspector {
 
     @discardableResult
     public static func install(configuration: Configuration = .default) -> Bool {
-        Task.detached {
+        let sema = DispatchSemaphore(value: 0)
+        Task {
             await RuntimeRegistry.shared.install(configuration: configuration)
+            sema.signal()
         }
+        sema.wait()
         return true
     }
 
@@ -75,8 +78,12 @@ public enum NetworkInspector {
         metrics: NetworkMetrics? = nil,
         source: NetworkSource = .manual
     ) {
-        Task.detached {
-            guard let rt = await RuntimeRegistry.shared.runtimeInstance() else { return }
+        let sema = DispatchSemaphore(value: 0)
+        Task {
+            guard let rt = await RuntimeRegistry.shared.runtimeInstance() else {
+                sema.signal()
+                return
+            }
 
             let event = CaptureEvent(
                 source: source,
@@ -93,7 +100,9 @@ public enum NetworkInspector {
             )
 
             await rt.captureCoordinator.process(event)
+            sema.signal()
         }
+        sema.wait()
     }
 
     public static func pause() {
