@@ -1,4 +1,6 @@
+#if os(iOS)
 import SwiftUI
+import UIKit
 import NetInspectorCore
 
 @MainActor
@@ -82,12 +84,11 @@ final class RequestsViewModel: ObservableObject {
     }
 }
 
-@available(macOS 12.0, *)
 struct RequestsView: View {
     @StateObject private var vm = RequestsViewModel()
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             List {
                 if vm.entries.isEmpty {
                     Section {
@@ -106,7 +107,6 @@ struct RequestsView: View {
             }
             .searchable(text: $vm.search)
             .toolbar {
-                #if os(iOS)
                 ToolbarItem(placement: .navigationBarLeading) {
                     Picker("", selection: $vm.filterGroup) {
                         ForEach(RequestsViewModel.FilterGroup.allCases) { g in
@@ -121,22 +121,6 @@ struct RequestsView: View {
                         NetworkInspector.clear()
                     }
                 }
-                #else
-                ToolbarItem(placement: .automatic) {
-                    Picker("", selection: $vm.filterGroup) {
-                        ForEach(RequestsViewModel.FilterGroup.allCases) { g in
-                            Text(g.rawValue).tag(g)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                    .frame(maxWidth: 360)
-                }
-                ToolbarItem(placement: .automatic) {
-                    Button("Clear") {
-                        NetworkInspector.clear()
-                    }
-                }
-                #endif
             }
             .navigationTitle("Network Inspector")
         }
@@ -202,3 +186,4 @@ private struct EntryRow: View {
         return String(format: "%.1f MB", kb / 1024.0)
     }
 }
+#endif

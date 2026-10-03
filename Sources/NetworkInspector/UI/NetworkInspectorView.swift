@@ -1,7 +1,7 @@
+#if os(iOS)
 import SwiftUI
 import NetInspectorCore
 
-@available(macOS 12.0, *)
 public struct NetworkInspectorView: View {
     public init() {}
 
@@ -24,3 +24,4 @@ public struct NetworkInspectorView: View {
         }
     }
 }
+#endif
