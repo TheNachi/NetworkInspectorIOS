@@ -43,10 +43,11 @@ public actor LogStore {
 
     public func stream() -> AsyncStream<NetworkEvent> {
         let id = UUID()
+        let store = self
         return AsyncStream { continuation in
             continuations[id] = continuation
-            continuation.onTermination = { [weak self] _ in
-                Task { await self?.removeContinuation(id: id) }
+            continuation.onTermination = { @Sendable _ in
+                Task { await store.removeContinuation(id: id) }
             }
         }
     }
