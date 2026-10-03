@@ -1,6 +1,10 @@
 import SwiftUI
 import NetInspectorCore
+#if os(macOS)
+import AppKit
+#endif
 
+@available(macOS 12.0, *)
 struct RequestDetailView: View {
     let entry: LogEntry
     @State private var tab: Tab = .overview
@@ -28,7 +32,9 @@ struct RequestDetailView: View {
             }
         }
         .navigationTitle(entry.request.url.path.isEmpty ? "/" : entry.request.url.path)
+        #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+        #endif
     }
 
     @ViewBuilder private func Overview() -> some View {
@@ -114,8 +120,17 @@ struct RequestDetailView: View {
                     }
                     HStack {
                         Spacer()
+                        #if os(iOS)
                         Button("Copy") { UIPasteboard.general.string = entry.request.body?.preview }
                             .buttonStyle(.bordered)
+                        #elseif os(macOS)
+                        Button("Copy") {
+                            let pb = NSPasteboard.general
+                            pb.clearContents()
+                            if let text = entry.request.body?.preview { pb.setString(text, forType: .string) }
+                        }
+                        .buttonStyle(.bordered)
+                        #endif
                     }
                 }
             } label: { Text("Request") }
@@ -129,8 +144,17 @@ struct RequestDetailView: View {
                     }
                     HStack {
                         Spacer()
+                        #if os(iOS)
                         Button("Copy") { UIPasteboard.general.string = entry.response?.body?.preview }
                             .buttonStyle(.bordered)
+                        #elseif os(macOS)
+                        Button("Copy") {
+                            let pb = NSPasteboard.general
+                            pb.clearContents()
+                            if let text = entry.response?.body?.preview { pb.setString(text, forType: .string) }
+                        }
+                        .buttonStyle(.bordered)
+                        #endif
                     }
                 }
             } label: { Text("Response") }
@@ -166,8 +190,17 @@ struct RequestDetailView: View {
                 Text(value).textSelection(.enabled)
             }
             Spacer()
+            #if os(iOS)
             Button("Copy") { UIPasteboard.general.string = value }
                 .buttonStyle(.bordered)
+            #elseif os(macOS)
+            Button("Copy") {
+                let pb = NSPasteboard.general
+                pb.clearContents()
+                pb.setString(value, forType: .string)
+            }
+            .buttonStyle(.bordered)
+            #endif
         }
     }
 

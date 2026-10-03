@@ -1,6 +1,10 @@
 import SwiftUI
 import NetInspectorCore
+#if os(macOS)
+import AppKit
+#endif
 
+@available(macOS 12.0, *)
 struct ExportView: View {
     enum Format: String, CaseIterable, Identifiable { case curl = "cURL", json = "JSON"; var id: String { rawValue } }
 
@@ -10,7 +14,7 @@ struct ExportView: View {
     @State private var exportInfo: String = ""
 
     var body: some View {
-        NavigationStack {
+        NavigationView {
             Form {
                 Section("Format") {
                     Picker("Format", selection: $format) {
@@ -27,7 +31,13 @@ struct ExportView: View {
                     Button("Generate") { Task { await generate() } }
                     if !exportText.isEmpty {
                         Button("Copy to Clipboard") {
+                            #if os(iOS)
                             UIPasteboard.general.string = exportText
+                            #elseif os(macOS)
+                            let pb = NSPasteboard.general
+                            pb.clearContents()
+                            pb.setString(exportText, forType: .string)
+                            #endif
                             exportInfo = "Copied"
                         }
                     }

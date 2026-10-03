@@ -1,6 +1,7 @@
 import SwiftUI
 import NetInspectorCore
 
+@available(macOS 12.0, *)
 struct SettingsView: View {
     @State private var enabled = true
     @State private var includeMetrics = true
@@ -10,7 +11,7 @@ struct SettingsView: View {
     @State private var redactJSON = true
 
     var body: some View {
-        NavigationStack {
+        NavigationView {
             Form {
                 Section {
                     Label("Capturing URLSession network traffic", systemImage: "dot.radiowaves.left.and.right")

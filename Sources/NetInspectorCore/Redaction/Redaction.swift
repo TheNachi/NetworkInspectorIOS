@@ -20,11 +20,22 @@ public struct RedactionEngine: Sendable {
             return data
         }
         let redacted = redactJSON(json, rules: rules)
-        guard JSONSerialization.isValidJSONObject(redacted),
-              let out = try? JSONSerialization.data(withJSONObject: redacted, options: [.withoutEscapingSlashes]) else {
+        guard JSONSerialization.isValidJSONObject(redacted) else {
             return data
         }
-        return out
+        if #available(iOS 15.0, macOS 12.0, *) {
+            if let out = try? JSONSerialization.data(withJSONObject: redacted, options: [.withoutEscapingSlashes]) {
+                return out
+            } else {
+                return data
+            }
+        } else {
+            if let out = try? JSONSerialization.data(withJSONObject: redacted, options: []) {
+                return out
+            } else {
+                return data
+            }
+        }
     }
 
     private func redactJSON(_ obj: Any, rules: [JSONRedactionRule]) -> Any {
