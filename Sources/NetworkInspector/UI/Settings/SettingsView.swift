@@ -19,11 +19,11 @@ struct SettingsView: View {
 
                 Section("Capture") {
                     Toggle("Inspector Enabled", isOn: $enabled)
-                        .onChange(of: enabled) { _, new in
+                        .onChange(of: enabled) { new in
                             Task { await updateConfig { $0.enabledByDefault = new } }
                         }
                     Toggle("Task Metrics", isOn: $includeMetrics)
-                        .onChange(of: includeMetrics) { _, new in
+                        .onChange(of: includeMetrics) { new in
                             Task { await updateConfig { $0.includeTaskMetrics = new } }
                         }
                     Stepper(value: $maxEntries, in: 50...10_000, step: 50) {
@@ -33,7 +33,7 @@ struct SettingsView: View {
                             Text("\(maxEntries)")
                         }
                     }
-                    .onChange(of: maxEntries) { _, new in
+                    .onChange(of: maxEntries) { new in
                         Task { await updateConfig { $0.maxEntries = new } }
                     }
                     Stepper(value: $maxBodyKB, in: 1...1024, step: 1) {
@@ -43,14 +43,14 @@ struct SettingsView: View {
                             Text("\(maxBodyKB) KB per request")
                         }
                     }
-                    .onChange(of: maxBodyKB) { _, new in
+                    .onChange(of: maxBodyKB) { new in
                         Task { await updateConfig { $0.maxBodyBytes = new * 1024 } }
                     }
                 }
 
                 Section("Privacy Pipeline") {
                     Toggle("Redact Auth Headers", isOn: $redactHeaders)
-                        .onChange(of: redactHeaders) { _, new in
+                        .onChange(of: redactHeaders) { new in
                             Task {
                                 await updateConfig {
                                     $0.redactHeaders = new ? ["authorization", "cookie", "set-cookie", "x-api-key", "x-auth-token", "proxy-authorization"] : []
@@ -58,7 +58,7 @@ struct SettingsView: View {
                             }
                         }
                     Toggle("Redact JSON Fields", isOn: $redactJSON)
-                        .onChange(of: redactJSON) { _, new in
+                        .onChange(of: redactJSON) { new in
                             Task {
                                 await updateConfig {
                                     $0.redactBodyKeys = new ? [

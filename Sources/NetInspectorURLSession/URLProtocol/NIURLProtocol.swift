@@ -4,7 +4,7 @@ import NetInspectorCore
 public final class NIURLProtocol: URLProtocol {
     private static let handledKey = "com.networkinspector.urlprotocol.handled"
 
-    private var task: URLSessionDataTask?
+    private var forwardingTask: URLSessionDataTask?
     private var startTime: Date?
     private var capturedRequestBody: Data?
 
@@ -22,6 +22,12 @@ public final class NIURLProtocol: URLProtocol {
         request
     }
 
+    // Support task-based initialization (e.g. for tasks created internally by URLSession)
+    public override class func canInit(with task: URLSessionTask) -> Bool {
+        guard let request = task.currentRequest else { return false }
+        return self.canInit(with: request)
+    }
+
     public override func startLoading() {
         guard let client else { return }
 
@@ -29,10 +35,14 @@ public final class NIURLProtocol: URLProtocol {
         URLProtocol.setProperty(true, forKey: Self.handledKey, in: mutable)
 
         startTime = Date()
-        capturedRequestBody = mutable.httpBody
+
+        // Capture httpBody and also support httpBodyStream by reading and replacing it
+        capturedRequestBody = Self.captureAndPrepareBody(for: mutable)
 
         let session = Self.makeNonInterceptingSession()
-        task = session.dataTask(with: mutable as URLRequest) { [weak self] data, response, error in
+        let reqForTask = mutable as URLRequest
+
+        forwardingTask = session.dataTask(with: reqForTask) { [weak self] data, response, error in
             guard let self else { return }
 
             if let response {
@@ -47,13 +57,16 @@ public final class NIURLProtocol: URLProtocol {
                 client.urlProtocolDidFinishLoading(self)
             }
 
+            // Clean up the ad-hoc session
+            session.finishTasksAndInvalidate()
+
             let endTime = Date()
             let startedAt = self.startTime ?? endTime
 
-            let method = self.request.httpMethod ?? "GET"
-            let url = self.request.url ?? URL(string: "about:blank")!
+            let method = (reqForTask.httpMethod ?? self.request.httpMethod) ?? "GET"
+            let url = (reqForTask.url ?? self.request.url) ?? URL(string: "about:blank")!
 
-            let reqHeaders = self.request.allHTTPHeaderFields ?? [:]
+            let reqHeaders = (reqForTask.allHTTPHeaderFields ?? self.request.allHTTPHeaderFields) ?? [:]
             let rawReq = RawRequestCapture(
                 method: method,
                 url: url,
@@ -110,12 +123,12 @@ public final class NIURLProtocol: URLProtocol {
                 await GlobalCaptureRouter.shared.submit(event)
             }
         }
-        task?.resume()
+        forwardingTask?.resume()
     }
 
     public override func stopLoading() {
-        task?.cancel()
-        task = nil
+        forwardingTask?.cancel()
+        forwardingTask = nil
     }
 
     private static func makeNonInterceptingSession() -> URLSession {
@@ -124,5 +137,44 @@ public final class NIURLProtocol: URLProtocol {
         classes.removeAll { $0 == NIURLProtocol.self }
         config.protocolClasses = classes
         return URLSession(configuration: config)
+    }
+
+    // Safely capture body data even when it's provided as a stream
+    private static func captureAndPrepareBody(for request: NSMutableURLRequest) -> Data? {
+        if let body = request.httpBody {
+            return body
+        }
+        guard let stream = request.httpBodyStream else {
+            return nil
+        }
+        let data = readStream(stream)
+        // Replace the stream so the downstream request can be sent without consuming a one-shot stream
+        request.httpBodyStream = nil
+        request.httpBody = data
+        return data
+    }
+
+    // Helper to read entire InputStream into Data
+    private static func readStream(_ stream: InputStream) -> Data? {
+        stream.open()
+        defer { stream.close() }
+
+        let bufferSize = 64 * 1024
+        let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: bufferSize)
+        defer { buffer.deallocate() }
+
+        var data = Data()
+        while stream.hasBytesAvailable {
+            let read = stream.read(buffer, maxLength: bufferSize)
+            if read < 0 {
+                // On error, return whatever we've read so far (or nil if nothing)
+                return data.isEmpty ? nil : data
+            } else if read == 0 {
+                break
+            } else {
+                data.append(buffer, count: read)
+            }
+        }
+        return data
     }
 }

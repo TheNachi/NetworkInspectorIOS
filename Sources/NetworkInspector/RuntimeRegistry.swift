@@ -8,11 +8,7 @@ actor RuntimeRegistry {
     private var runtime: NetworkInspectorRuntime?
 
     func install(configuration: Configuration) {
-        if let _ = runtime {
-            runtime = NetworkInspectorRuntime(configuration: configuration)
-        } else {
-            runtime = NetworkInspectorRuntime(configuration: configuration)
-        }
+        runtime = NetworkInspectorRuntime(configuration: configuration)
 
         if let runtime {
             Task.detached {
@@ -49,7 +45,7 @@ actor RuntimeRegistry {
         await runtime.logStore.clear()
     }
 
-    func eventStream() -> AsyncStream<NetworkEvent>? {
+    func eventStream() async -> AsyncStream<NetworkEvent>? {
         guard let runtime else { return nil }
         return await runtime.logStore.stream()
     }
