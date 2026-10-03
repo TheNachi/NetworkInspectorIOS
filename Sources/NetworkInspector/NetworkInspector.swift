@@ -1,6 +1,7 @@
 import Foundation
 import NetInspectorCore
 import NetInspectorURLSession
+import NetInspectorExporters
 
 public enum NetworkInspector {
 
@@ -33,6 +34,10 @@ public enum NetworkInspector {
         return await rt.logStore.allEntries()
     }
 
+    public static func eventStream() async -> AsyncStream<NetworkEvent>? {
+        await RuntimeRegistry.shared.eventStream()
+    }
+
     public static func enable() {
         Task.detached {
             guard let rt = await RuntimeRegistry.shared.runtimeInstance() else { return }
@@ -53,6 +58,14 @@ public enum NetworkInspector {
 
     public static func makeInstrumentedSession(configuration: URLSessionConfiguration) -> URLSession {
         NetInspectorURLSession.makeInstrumentedSession(configuration: configuration)
+    }
+
+    public static func exportJSON(entries: [LogEntry]) throws -> Data {
+        try JSONExporter().export(entries: entries)
+    }
+
+    public static func exportCurl(entry: LogEntry) -> String {
+        CurlExporter().export(entry: entry)
     }
 
     public static func log(

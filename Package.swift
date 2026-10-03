@@ -13,9 +13,7 @@ let package = Package(
     products: [
         .library(
             name: "NetworkInspector",
-            targets: [
-                "NetworkInspector"
-            ]
+            targets: ["NetworkInspector"]
         ),
         .library(
             name: "NetInspectorCore",

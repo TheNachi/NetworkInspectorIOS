@@ -46,6 +46,31 @@ public struct LogFlags: Codable, Sendable, Hashable {
     }
 }
 
+// Diagnostics models
+public enum NetworkClassification: String, Codable, Sendable {
+    case success, redirect, clientError, serverError, networkFailure, timeout, cancelled, slow, noResponse, unknown
+}
+
+public struct DiagnosticIssue: Codable, Sendable, Hashable {
+    public let code: String
+    public let message: String
+
+    public init(code: String, message: String) {
+        self.code = code
+        self.message = message
+    }
+}
+
+public struct NetworkDiagnostics: Codable, Sendable, Hashable {
+    public let classification: NetworkClassification
+    public let issues: [DiagnosticIssue]
+
+    public init(classification: NetworkClassification, issues: [DiagnosticIssue] = []) {
+        self.classification = classification
+        self.issues = issues
+    }
+}
+
 public struct LogEntry: Identifiable, Codable, Sendable, Hashable {
     public let id: UUID
     public let timestamp: Date
@@ -55,6 +80,7 @@ public struct LogEntry: Identifiable, Codable, Sendable, Hashable {
     public let metrics: NetworkMetrics?
     public let flags: LogFlags
     public let tags: [String: String]
+    public let diagnostics: NetworkDiagnostics?
 
     public init(
         id: UUID = UUID(),
@@ -64,7 +90,8 @@ public struct LogEntry: Identifiable, Codable, Sendable, Hashable {
         response: ResponseLog?,
         metrics: NetworkMetrics?,
         flags: LogFlags = .init(),
-        tags: [String: String] = [:]
+        tags: [String: String] = [:],
+        diagnostics: NetworkDiagnostics? = nil
     ) {
         self.id = id
         self.timestamp = timestamp
@@ -74,5 +101,6 @@ public struct LogEntry: Identifiable, Codable, Sendable, Hashable {
         self.metrics = metrics
         self.flags = flags
         self.tags = tags
+        self.diagnostics = diagnostics
     }
 }

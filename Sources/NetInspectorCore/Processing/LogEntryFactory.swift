@@ -24,4 +24,18 @@ public struct LogEntryFactory: Sendable {
             tags: tags
         )
     }
+
+    public func withDiagnostics(_ entry: LogEntry, diagnostics: NetworkDiagnostics?) -> LogEntry {
+        LogEntry(
+            id: entry.id,
+            timestamp: entry.timestamp,
+            source: entry.source,
+            request: entry.request,
+            response: entry.response,
+            metrics: entry.metrics,
+            flags: entry.flags,
+            tags: entry.tags,
+            diagnostics: diagnostics
+        )
+    }
 }
