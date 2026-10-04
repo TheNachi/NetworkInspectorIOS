@@ -1,4 +1,4 @@
-# NetworkInspector for iOS
+# NetworkInspector (iOS)
 
 NetworkInspector is an in-app network debugging SDK for inspecting and exporting HTTP traffic captured from an instrumented `URLSession`.
 
@@ -7,10 +7,9 @@ NetworkInspector is an in-app network debugging SDK for inspecting and exporting
 - Limits captured body previews to 64 KB by default and skips likely binary bodies by default.
 - Provides an embeddable SwiftUI inspector for requests, exports, and settings.
 - Exports sanitized JSON and cURL.
-- Keeps entries in bounded in-memory storage.
-- Disables capture by default in Release builds.
+- Keeps entries in bounded in-memory storage, safe-by-default in Release builds
 
-Current package version: `1.0.0`.
+- Status: 1.0.1
 
 ## Requirements
 
