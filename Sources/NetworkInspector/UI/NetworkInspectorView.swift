@@ -1,4 +1,4 @@
-#if os(iOS)
+#if canImport(UIKit)
 import SwiftUI
 import NetInspectorCore
 
@@ -8,19 +8,13 @@ public struct NetworkInspectorView: View {
     public var body: some View {
         TabView {
             RequestsView()
-                .tabItem {
-                    Label("Requests", systemImage: "dot.circle")
-                }
+                .tabItem { Label("Requests", systemImage: "dot.circle") }
 
             ExportView()
-                .tabItem {
-                    Label("Export", systemImage: "arrow.up.square")
-                }
+                .tabItem { Label("Export", systemImage: "arrow.up.square") }
 
             SettingsView()
-                .tabItem {
-                    Label("Settings", systemImage: "gearshape")
-                }
+                .tabItem { Label("Settings", systemImage: "gearshape") }
         }
     }
 }

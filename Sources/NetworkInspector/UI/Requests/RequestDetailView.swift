@@ -1,7 +1,7 @@
-#if os(iOS)
+#if canImport(UIKit)
 import SwiftUI
-import UIKit
 import NetInspectorCore
+import UIKit
 
 struct RequestDetailView: View {
     let entry: LogEntry

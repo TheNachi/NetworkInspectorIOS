@@ -7,10 +7,12 @@ let package = Package(
     name: "NetworkInspector",
 
     platforms: [
-        .iOS(.v16)
+        .iOS(.v16),
+        .macOS(.v12)
     ],
 
     products: [
+        // Expose only the public facade to host apps
         .library(
             name: "NetworkInspector",
             targets: [
