@@ -7,38 +7,15 @@ let package = Package(
     name: "NetworkInspector",
 
     platforms: [
-        .iOS(.v16),
-        .macOS(.v12)
+        .iOS(.v16)
     ],
 
     products: [
         .library(
             name: "NetworkInspector",
-            targets: ["NetworkInspector"]
-        ),
-        .library(
-            name: "NetInspectorCore",
-            targets: ["NetInspectorCore"]
-        ),
-        .library(
-            name: "NetInspectorUI",
-            targets: ["NetInspectorUI"]
-        ),
-        .library(
-            name: "NetInspectorPlugins",
-            targets: ["NetInspectorPlugins"]
-        ),
-        .library(
-            name: "NetInspectorURLSession",
-            targets: ["NetInspectorURLSession"]
-        ),
-        .library(
-            name: "NetInspectorDiagnostics",
-            targets: ["NetInspectorDiagnostics"]
-        ),
-        .library(
-            name: "NetInspectorExporters",
-            targets: ["NetInspectorExporters"]
+            targets: [
+                "NetworkInspector"
+            ]
         )
     ],
 
