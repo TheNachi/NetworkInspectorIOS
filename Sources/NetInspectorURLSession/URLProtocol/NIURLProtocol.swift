@@ -1,5 +1,7 @@
 import Foundation
+#if canImport(NetInspectorCore)
 import NetInspectorCore
+#endif
 
 public final class NIURLProtocol: URLProtocol {
     private static let handledKey = "com.networkinspector.urlprotocol.handled"

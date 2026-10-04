@@ -1,7 +1,13 @@
 import Foundation
+#if canImport(NetInspectorCore)
 import NetInspectorCore
+#endif
+#if canImport(NetInspectorURLSession)
 import NetInspectorURLSession
+#endif
+#if canImport(NetInspectorExporters)
 import NetInspectorExporters
+#endif
 
 public enum NetworkInspector {
 

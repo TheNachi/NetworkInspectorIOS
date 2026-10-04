@@ -44,6 +44,14 @@ targets: [
 ]
 ```
 
+## Installation (CocoaPods)
+
+Podfile:
+
+```ruby
+pod 'NetworkInspector'
+```
+
 ## Quick Start: SwiftUI
 
 Install the SDK once during app startup, then use an instrumented session for requests you want to capture.

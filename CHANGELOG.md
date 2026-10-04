@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.2
+- Packaging: fix CocoaPods build by guarding internal module imports with `#if canImport(...)`.
+- Release: bump podspec version to 1.0.2 and retag to ensure trunk builds the correct commit.
+
 ## 1.0.1
 - Packaging: expose only the `NetworkInspector` product to host apps.
 - Build: add `macOS(.v12)` to Package platforms and availability guards for CI.

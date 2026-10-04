@@ -1,6 +1,10 @@
 import Foundation
+#if canImport(NetInspectorCore)
 import NetInspectorCore
+#endif
+#if canImport(NetInspectorDiagnostics)
 import NetInspectorDiagnostics
+#endif
 
 actor RuntimeRegistry {
     static let shared = RuntimeRegistry()
@@ -8,7 +12,11 @@ actor RuntimeRegistry {
     private var runtime: NetworkInspectorRuntime?
 
     func install(configuration: Configuration) {
-        runtime = NetworkInspectorRuntime(configuration: configuration)
+        if let _ = runtime {
+            runtime = NetworkInspectorRuntime(configuration: configuration)
+        } else {
+            runtime = NetworkInspectorRuntime(configuration: configuration)
+        }
 
         if let runtime {
             Task.detached {

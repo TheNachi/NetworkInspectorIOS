@@ -1,5 +1,7 @@
 import Foundation
+#if canImport(NetInspectorCore)
 import NetInspectorCore
+#endif
 
 struct NetworkInspectorRuntime {
     let configurationStore: ConfigurationStore

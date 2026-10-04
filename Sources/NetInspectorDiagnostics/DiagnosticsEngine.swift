@@ -1,5 +1,7 @@
 import Foundation
+#if canImport(NetInspectorCore)
 import NetInspectorCore
+#endif
 
 public struct DiagnosticsEngine: Sendable {
     public init() {}

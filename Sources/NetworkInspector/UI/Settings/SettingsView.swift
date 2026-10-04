@@ -1,6 +1,8 @@
 #if canImport(UIKit)
 import SwiftUI
+#if canImport(NetInspectorCore)
 import NetInspectorCore
+#endif
 
 struct SettingsView: View {
     @State private var enabled = true

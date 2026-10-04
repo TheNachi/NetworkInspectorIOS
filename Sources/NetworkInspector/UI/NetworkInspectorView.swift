@@ -1,6 +1,8 @@
 #if canImport(UIKit)
 import SwiftUI
+#if canImport(NetInspectorCore)
 import NetInspectorCore
+#endif
 
 public struct NetworkInspectorView: View {
     @Environment(\.dismiss) private var dismiss
