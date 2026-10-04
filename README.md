@@ -1,83 +1,34 @@
 # NetworkInspector (iOS)
 
-An open-source network debugging and diagnostics SDK for iOS apps.
+An in-app network debugging and diagnostics SDK for iOS.
 
 - Capture URLSession traffic (including async/await)
 - Redact sensitive headers and JSON fields before storage
 - Truncate large bodies (64 KB default), skip binary by default
-- Inspect requests/responses in-app via SwiftUI inspector
+- Inspect requests/responses in-app with a SwiftUI inspector
 - Export JSON and cURL (sanitized)
-- Bounded in-memory storage, safe-by-default in Release
+- Bounded in-memory storage, safe-by-default in Release builds
 
-Status: V1.0 core complete
+Status: V1.0 core complete (testing toward 1.0.1)
 
-## Getting Started
 
-1) Add the package (SPM)
-- In Xcode: File → Add Packages → point at your repo URL (or local path).
-- Minimum iOS 16, Swift 5.9.
+## Requirements
 
-2) Install and present
+- iOS 16.0+
+- Xcode 15.0+
+- Swift 5.9+
 
-import NetworkInspector
 
-@main
-struct AppMain: App {
-    init() {
-        _ = NetworkInspector.install()   // Debug: enabled; Release: disabled by default
-    }
-    var body: some Scene {
-        WindowGroup { ContentView() }
-    }
-}
+## Installation (Swift Package Manager)
 
-struct ContentView: View {
-    @State private var showing = false
-    var body: some View {
-        VStack {
-            Button("Open Inspector") { showing = true }
-        }
-        .sheet(isPresented: $showing) {
-            NetworkInspectorView()
-        }
-    }
-}
+You only need to add the single product “NetworkInspector”.
 
-3) Use an instrumented URLSession
+Xcode GUI
+1) Xcode → File → Add Packages…
+2) Enter your repository URL
+3) Dependency Rule: Up to Next Major Version (from 1.0.0)
+4) In the product picker, set only “NetworkInspector” to your app target (leave others as “None”)
+5) Add Package
 
-let session = NetworkInspector.makeInstrumentedSession(configuration: .default)
-let (data, response) = try await session.data(from: URL(string: "https://httpbin.org/get")!)
-
-4) Manual capture (optional)
-
-NetworkInspector.log(
-    request: RequestLike(method: "GET", url: URL(string: "https://example.com")!),
-    source: .manual
-)
-
-## Configuration
-
-- Safe-by-default: disabled in Release builds unless you explicitly enable.
-- Pause/resume or scoped suppression:
-
-NetworkInspector.pause()
-NetworkInspector.resume()
-await NetworkInspector.withLoggingDisabled { /* sensitive ops */ }
-
-## Export
-
-- JSON: `try NetworkInspector.exportJSON(entries: await NetworkInspector.entries())`
-- cURL: `NetworkInspector.exportCurl(entry: (await NetworkInspector.entries()).first!)`
-
-## Privacy
-
-- Default redaction: Authorization, Cookie, Set-Cookie, X-API-Key, X-Auth-Token, Proxy-Authorization
-- Default JSON redaction: password, otp, .*token.*
-- Redaction happens before storage and export.
-
-## Roadmap
-
-- V1.5: URLSessionTaskMetrics waterfall, HAR 1.2, advanced filters, disk persistence.
-- V2.0: Alamofire, Moya, Apollo integrations.
-
-License: MIT
+Package.swift (alternative)
+Add this to your app’s Package.swift dependencies and target:
